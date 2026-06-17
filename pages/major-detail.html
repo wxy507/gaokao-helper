@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>专业详情 - 高考志愿填报助手</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>🎯 志愿<span>填报</span>助手</h1>
+      <div class="subtitle">智能推荐 · 完整专业目录 · 院校信息</div>
+    </div>
+    <nav>
+      <a href="../index.html">首页</a>
+      <a href="select.html">智能推荐</a>
+      <a href="majors.html">专业目录</a>
+      <a href="universities.html">院校大全</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container" id="detailPage">
+  <div class="breadcrumb">
+    <a href="../index.html">首页</a> <span class="sep">›</span>
+    <a href="majors.html">专业目录</a> <span class="sep">›</span>
+    <span id="breadcrumbMajor">专业详情</span>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>正在加载专业信息...</p>
+  </div>
+
+  <div id="majorDetail" style="display:none;">
+    <div class="section-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <h2 id="majorName" style="font-size:24px;margin-bottom:0;"></h2>
+        <span id="majorHotTag" class="tag tag-green" style="display:none;">🔥 热点专业</span>
+      </div>
+      <p id="majorDescription" class="desc" style="margin-top:16px;"></p>
+    </div>
+
+    <div class="section-card">
+      <h2><span class="icon">📊</span> 核心信息</h2>
+      <div class="info-cards" id="infoCards"></div>
+    </div>
+
+    <div class="section-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+        <h2><span class="icon">🏫</span> 开设院校及录取分数</h2>
+        <span style="font-size:13px;color:var(--gray-500);">按录取分数从高到低排序</span>
+      </div>
+      <div class="uni-list" id="uniRanking"></div>
+    </div>
+
+    <div class="section-card">
+      <h2><span class="icon">💡</span> 报考建议</h2>
+      <div id="majorAdvice" class="advice-box"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../data/majors.js"></script>
+<script>
+function getQueryParam(name) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const majorName = getQueryParam('major');
+  if (!majorName) {
+    document.getElementById('loading').innerHTML = '<p>未指定专业名称，请从专业目录选择。</p>';
+    return;
+  }
+
+  // 在所有大类中搜索专业
+  let foundMajor = null;
+  let foundCategory = null;
+  for (const cat of MAJOR_CATEGORIES) {
+    for (const m of cat.majors) {
+      if (m.name === majorName) {
+        foundMajor = m;
+        foundCategory = cat;
+        break;
+      }
+    }
+    if (foundMajor) break;
+  }
+
+  if (!foundMajor) {
+    document.getElementById('loading').innerHTML = `<p>未找到"${majorName}"专业信息。</p>`;
+    return;
+  }
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('majorDetail').style.display = 'block';
+  document.getElementById('breadcrumbMajor').textContent = foundMajor.name;
+  document.getElementById('majorName').textContent = `${foundCategory.icon} ${foundMajor.name}`;
+  document.getElementById('majorDescription').textContent = foundMajor.description;
+
+  // 判断是否是热点专业
+  const hotNames = ['人工智能', '集成电路设计与集成系统', '数据科学与大数据技术', 
+    '新能源科学与工程', '计算机科学与技术', '口腔医学', '金融科技', '网络空间安全',
+    '软件工程', '电子信息工程', '自动化', '临床医学'];
+  if (hotNames.includes(foundMajor.name)) {
+    const tag = document.getElementById('majorHotTag');
+    tag.style.display = 'inline-block';
+    tag.textContent = '🔥 风口专业';
+    tag.className = 'tag tag-red';
+  }
+
+  // 核心信息卡片
+  const infoCards = document.getElementById('infoCards');
+  infoCards.innerHTML = `
+    <div class="info-card">
+      <h4>📖 专业解析</h4>
+      <p>${foundMajor.description}</p>
+    </div>
+    <div class="info-card">
+      <h4>💼 毕业后去向</h4>
+      <p>${foundMajor.careers}</p>
+    </div>
+    <div class="info-card">
+      <h4>💰 真实薪资情况</h4>
+      <p>${foundMajor.salary}</p>
+    </div>
+    <div class="info-card">
+      <h4>📈 发展趋势</h4>
+      <p>${foundMajor.trend}</p>
+    </div>
+  `;
+
+  // 院校排名（按分数从高到低）
+  const uniList = document.getElementById('uniRanking');
+  if (foundMajor.universities && foundMajor.universities.length > 0) {
+    const sorted = [...foundMajor.universities].sort((a, b) => b.score - a.score);
+    uniList.innerHTML = sorted.map((u, i) => `
+      <div class="uni-item" onclick="window.location.href='university-detail.html?uni=${encodeURIComponent(u.name)}'">
+        <div class="rank ${i < 3 ? 'top3' : i < 8 ? 'top10' : 'normal'}">${i + 1}</div>
+        <div class="uni-info">
+          <div class="uni-name">${u.name}</div>
+          <div class="uni-detail">${u.type}院校</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:18px;font-weight:700;color:var(--primary);">${u.score}</div>
+          <div style="font-size:12px;color:var(--gray-400);">往年参考分</div>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    uniList.innerHTML = '<p style="color:var(--gray-500);">暂未收录该专业的院校分数数据</p>';
+  }
+
+  // 报考建议
+  const advice = document.getElementById('majorAdvice');
+  let trendAdvice = '';
+  const salaryNum = foundMajor.salary.match(/(\d+)[Kk]/);
+  const isHighSalary = salaryNum && parseInt(salaryNum[1]) >= 15;
+
+  if (hotNames.includes(foundMajor.name)) {
+    trendAdvice = `<strong>🔥 风口专业：</strong>该专业属于当前国家战略重点方向，人才需求旺盛，薪资水平高于平均水平。建议优先选择该专业实力强的院校，关注院校的产学研合作和就业资源。`;
+  } else if (isHighSalary) {
+    trendAdvice = `<strong>💰 高薪专业：</strong>该专业薪资水平较高，行业前景看好。建议关注行业发展趋势，选择在对应领域有优势的院校。`;
+  } else {
+    trendAdvice = `<strong>📊 稳定发展：</strong>该专业属于基础性或传统专业，就业市场稳定。建议结合个人兴趣，考虑辅修技能或复合型发展路径。`;
+  }
+  advice.innerHTML = `
+    <h3>📌 专业选择建议</h3>
+    <p>${trendAdvice}</p>
+    <p style="margin-top:8px;"><strong>适合人群：</strong>${foundMajor.name}适合对相关领域有浓厚兴趣，具备相应学科基础的学生。建议结合自身特长和职业规划综合判断。</p>
+    <p style="margin-top:8px;"><strong>深造建议：</strong>${foundMajor.careers.includes('科研') || foundMajor.careers.includes('研发') ? '建议本科后继续深造（硕/博），对职业发展帮助显著。' : '本科就业即可，但深造可提升起薪水平和晋升空间。'}</p>
+  `;
+});
+</script>
+<footer>
+  <p>高考志愿填报助手 · 数据仅供参考</p>
+</footer>
+</body>
+</html>

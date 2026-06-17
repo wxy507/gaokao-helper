@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>院校详情 - 高考志愿填报助手</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>🎯 志愿<span>填报</span>助手</h1>
+      <div class="subtitle">智能推荐 · 完整专业目录 · 院校信息</div>
+    </div>
+    <nav>
+      <a href="../index.html">首页</a>
+      <a href="select.html">智能推荐</a>
+      <a href="majors.html">专业目录</a>
+      <a href="universities.html">院校大全</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container" id="detailPage">
+  <div class="breadcrumb">
+    <a href="../index.html">首页</a> <span class="sep">›</span>
+    <a href="universities.html">院校大全</a> <span class="sep">›</span>
+    <span id="breadcrumbUni">院校详情</span>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>正在加载院校信息...</p>
+  </div>
+
+  <div id="uniDetail" style="display:none;">
+    <!-- 基本信息 -->
+    <div class="uni-detail-header" id="uniHeader"></div>
+
+    <!-- 详细信息 -->
+    <div class="section-card">
+      <h2><span class="icon">📋</span> 基本信息</h2>
+      <div class="info-grid" id="basicInfo"></div>
+    </div>
+
+    <!-- 王牌专业 -->
+    <div class="section-card">
+      <h2><span class="icon">🏆</span> 优势专业</h2>
+      <div id="majorTags"></div>
+    </div>
+
+    <!-- 毕业生去向 -->
+    <div class="section-card">
+      <h2><span class="icon">🎓</span> 毕业生去向</h2>
+      <div id="graduateOutcomes"></div>
+    </div>
+
+    <!-- 深入了解链接 -->
+    <div class="section-card">
+      <h2><span class="icon">🔗</span> 深入了解</h2>
+      <div id="deepLinks"></div>
+    </div>
+
+    <!-- 报考建议 -->
+    <div class="section-card">
+      <h2><span class="icon">💡</span> 报考建议</h2>
+      <div id="uniAdvice" class="advice-box"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../data/universities.js"></script>
+<script src="../data/majors.js"></script>
+<script>
+function getQueryParam(name) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const uniName = getQueryParam('uni');
+  if (!uniName) {
+    document.getElementById('loading').innerHTML = '<p>未指定院校名称，请从院校列表选择。</p>';
+    return;
+  }
+
+  const uni = UNIVERSITIES.find(u => u.name === uniName);
+  if (!uni) {
+    document.getElementById('loading').innerHTML = `<p>未找到"${uniName}"的信息。</p>`;
+    return;
+  }
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('uniDetail').style.display = 'block';
+  document.getElementById('breadcrumbUni').textContent = uni.name;
+
+  // 头部信息
+  document.getElementById('uniHeader').innerHTML = `
+    <div class="uni-main">
+      <div class="uni-name-big">${uni.name}</div>
+      <div class="uni-badges">
+        <span class="tag tag-red">排名第${uni.rank}</span>
+        <span class="tag tag-blue">📍 ${uni.location}</span>
+        <span class="tag tag-green">${uni.type}</span>
+        ${(uni.tags || []).map(t => `<span class="tag tag-yellow">${t}</span>`).join('')}
+      </div>
+      <div class="uni-desc">${uni.description}</div>
+      <div class="uni-links">
+        <a href="${uni.website}" target="_blank">🌐 学校官网</a>
+        ${uni.campusLink ? `<a href="${uni.campusLink}" target="_blank">🗺️ 校园网</a>` : ''}
+        ${uni.socialLinks && uni.socialLinks.wechat ? `<a href="javascript:void(0)" onclick="alert('微信公众号：${uni.socialLinks.wechat}')">💬 公众号：${uni.socialLinks.wechat}</a>` : ''}
+      </div>
+    </div>
+  `;
+
+  // 基本信息
+  const stats = uni.stats || {};
+  document.getElementById('basicInfo').innerHTML = `
+    <div class="info-item">
+      <div class="label">本科生人数</div>
+      <div class="value">${stats.undergraduateCount ? (stats.undergraduateCount / 10000).toFixed(1) + '万' : '—'}</div>
+    </div>
+    <div class="info-item">
+      <div class="label">研究生人数</div>
+      <div class="value">${stats.graduateCount ? (stats.graduateCount / 10000).toFixed(1) + '万' : '—'}</div>
+    </div>
+    <div class="info-item">
+      <div class="label">国际学生</div>
+      <div class="value">${stats.internationalCount ? stats.internationalCount + '人' : '—'}</div>
+    </div>
+    <div class="info-item">
+      <div class="label">学校类型</div>
+      <div class="value">${uni.type}</div>
+    </div>
+    <div class="info-item">
+      <div class="label">所在地</div>
+      <div class="value">${uni.location}</div>
+    </div>
+    <div class="info-item">
+      <div class="label">办学层次</div>
+      <div class="value">${(uni.tags || []).filter(t => ['985', '211', '双一流'].includes(t)).join(' / ') || '普通本科'}</div>
+    </div>
+  `;
+
+  // 优势专业
+  const majorTags = document.getElementById('majorTags');
+  if (uni.majors && uni.majors.length > 0) {
+    majorTags.innerHTML = '<p style="margin-bottom:12px;font-size:14px;color:var(--gray-500);">以下为该院校的优势专业，点击查看详情：</p>' +
+      uni.majors.map(m => `<span class="tag tag-blue" style="cursor:pointer;font-size:14px;padding:6px 14px;margin:4px;" onclick="window.location.href='major-detail.html?major=${encodeURIComponent(m)}'">${m}</span>`).join('');
+  } else {
+    majorTags.innerHTML = '<p style="color:var(--gray-500);">暂未收录</p>';
+  }
+
+  // 毕业生去向
+  const outcomes = uni.graduateOutcomes || {};
+  document.getElementById('graduateOutcomes').innerHTML = `
+    <div class="info-cards">
+      <div class="info-card">
+        <h4>📊 就业率</h4>
+        <p style="font-size:24px;font-weight:700;color:var(--primary);">${outcomes.employmentRate || '—'}</p>
+      </div>
+      <div class="info-card">
+        <h4>🎓 深造情况</h4>
+        <p>${outcomes.furtherStudy || '—'}</p>
+      </div>
+      <div class="info-card">
+        <h4>💰 薪资水平</h4>
+        <p>${outcomes.averageSalary || '—'}</p>
+      </div>
+      <div class="info-card">
+        <h4>🏢 主要雇主</h4>
+        <p>${(outcomes.topEmployers || []).join('、')}</p>
+      </div>
+    </div>
+    ${outcomes.destinations ? `
+    <div class="advice-box" style="margin-top:12px;">
+      <h3>📍 毕业去向分布</h3>
+      <p>${outcomes.destinations}</p>
+    </div>` : ''}
+  `;
+
+  // 深入了解链接
+  document.getElementById('deepLinks').innerHTML = `
+    <div class="feature-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));">
+      <div class="feature-card" onclick="window.open('${uni.website}', '_blank')">
+        <div class="icon">🌐</div>
+        <h3>学校官网</h3>
+        <p>查看官方最新信息、招生简章、学院设置</p>
+      </div>
+      ${uni.campusLink ? `
+      <div class="feature-card" onclick="window.open('${uni.campusLink}', '_blank')">
+        <div class="icon">🗺️</div>
+        <h3>校园网/校内平台</h3>
+        <p>了解校园生活、教学资源、学生服务</p>
+      </div>` : ''}
+      <div class="feature-card" onclick="window.open('https://gaokao.chsi.com.cn/', '_blank')">
+        <div class="icon">📖</div>
+        <h3>阳光高考平台</h3>
+        <p>教育部官方招生信息平台，查看院校招生章程</p>
+      </div>
+      ${uni.socialLinks && uni.socialLinks.wechat ? `
+      <div class="feature-card" onclick="alert('请在微信中搜索公众号：${uni.socialLinks.wechat}')">
+        <div class="icon">💬</div>
+        <h3>官方公众号</h3>
+        <p>微信搜索「${uni.socialLinks.wechat}」关注最新动态</p>
+      </div>` : ''}
+      <div class="feature-card" onclick="window.open('https://www.zhihu.com/search?type=content&q=${encodeURIComponent(uni.name)}', '_blank')">
+        <div class="icon">💡</div>
+        <h3>知乎评价</h3>
+        <p>查看学长学姐的真实就读体验和评价</p>
+      </div>
+      <div class="feature-card" onclick="window.open('https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(uni.name + ' 就读体验')}', '_blank')">
+        <div class="icon">📱</div>
+        <h3>小红书分享</h3>
+        <p>查看在校生的日常生活和学习分享</p>
+      </div>
+    </div>
+  `;
+
+  // 报考建议
+  const rank = uni.rank;
+  let adviceText = '';
+  if (rank <= 5) {
+    adviceText = `${uni.name}是中国顶尖高校，录取分数线极高。${uni.name}毕业生具有极强的市场竞争力，无论是就业还是深造都具有显著优势。建议高考分数在全省前0.5%的考生报考。需要注意${uni.name}的自主招生和强基计划等特殊类型招生渠道。`;
+  } else if (rank <= 15) {
+    adviceText = `${uni.name}是知名985高校，综合实力和声誉优秀。录取分数线较高，建议高考分数在全省前2%的考生报考。${uni.name}的优质学科和专业值得优先考虑。注意关注该校的优势学科和特色班型。`;
+  } else if (rank <= 30) {
+    adviceText = `${uni.name}是实力强劲的985/211高校，在特定学科领域具有全国领先地位。建议分数在全省前5%的考生报考。建议优先选择该校的王牌专业，性价比很高。`;
+  } else if (rank <= 50) {
+    adviceText = `${uni.name}是优质211或双一流高校，部分专业实力突出。对于中等偏上分数的考生来说，选择该校的优势专业是性价比很高的选择。建议重点关注该校的国家级特色专业和就业较好的专业。`;
+  } else {
+    adviceText = `${uni.name}是具有特色的本科院校。考生在选择时建议优先考虑就业前景好的应用型专业。可以结合城市发展前景和个人兴趣综合判断。同时关注该校的校企合作和实习资源。`;
+  }
+  
+  document.getElementById('uniAdvice').innerHTML = `
+    <h3>📌 报考建议</h3>
+    <p>${adviceText}</p>
+    <p style="margin-top:8px;"><strong>了解更多：</strong>
+      <a href="${uni.website}" target="_blank">官方网站</a> ·
+      <a href="https://gaokao.chsi.com.cn/" target="_blank">阳光高考</a> ·
+      <a href="major-detail.html?major=${encodeURIComponent((uni.majors && uni.majors[0]) || '计算机科学与技术')}" target="_blank">王牌专业详情</a>
+    </p>
+  `;
+});
+</script>
+<footer>
+  <p>高考志愿填报助手 · 数据仅供参考，填报时请结合官方招生简章</p>
+</footer>
+</body>
+</html>

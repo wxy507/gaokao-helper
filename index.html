@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高考志愿填报助手 - 智能推荐 · 完整专业目录 · 院校信息</title>
+  <meta name="description" content="基于高考分数和省份的智能志愿填报推荐系统。提供完整本科专业目录、院校排名、专业解析、就业前景和真实薪资数据。">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>🎯 志愿<span>填报</span>助手</h1>
+      <div class="subtitle">智能推荐 · 完整专业目录 · 院校信息</div>
+    </div>
+    <nav>
+      <a href="index.html" class="active">首页</a>
+      <a href="pages/select.html">智能推荐</a>
+      <a href="pages/majors.html">专业目录</a>
+      <a href="pages/universities.html">院校大全</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-content">
+    <h2>你的分数，能上什么大学？</h2>
+    <p>基于最新高考数据和行业趋势，为你的分数和省份精准推荐最适合的专业和院校。<br>涵盖全国完整本科专业目录、高校信息、就业前景和薪资数据。</p>
+    <a href="pages/select.html" class="btn btn-accent btn-lg">开始智能推荐 →</a>
+    <div class="stats">
+      <div class="stat-item"><div class="stat-num">800+</div><div class="stat-label">本科专业</div></div>
+      <div class="stat-item"><div class="stat-num">31</div><div class="stat-label">省份覆盖</div></div>
+      <div class="stat-item"><div class="stat-num">100+</div><div class="stat-label">高校信息</div></div>
+      <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">学科门类</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="section-card">
+    <h2><span class="icon">🔥</span> 2026年高考热点趋势</h2>
+    <div class="feature-grid">
+      <div class="feature-card" onclick="window.location.href='pages/majors.html#engineering'">
+        <div class="icon">🤖</div>
+        <h3>人工智能 & 芯片</h3>
+        <p>AI大模型和芯片国产化是国家核心战略。相关专业薪资涨幅最快，人才缺口巨大。</p>
+      </div>
+      <div class="feature-card" onclick="window.location.href='pages/majors.html#engineering'">
+        <div class="icon">☀️</div>
+        <h3>新能源 & 双碳</h3>
+        <p>光伏、储能、氢能、新能源汽车全面爆发。国家双碳战略核心领域，未来十年持续热门。</p>
+      </div>
+      <div class="feature-card" onclick="window.location.href='pages/majors.html#engineering'">
+        <div class="icon">🔐</div>
+        <h3>网络空间安全</h3>
+        <p>数据安全法驱动需求爆发。网络安全人才缺口超百万，薪资持续走高。</p>
+      </div>
+      <div class="feature-card" onclick="window.location.href='pages/majors.html#medicine'">
+        <div class="icon">🦷</div>
+        <h3>口腔医学</h3>
+        <p>消费医疗热门方向。私立诊所收入可观，职业发展空间大，社会地位高。</p>
+      </div>
+      <div class="feature-card" onclick="window.location.href='pages/majors.html#engineering'">
+        <div class="icon">🧬</div>
+        <h3>数据科学 & AI</h3>
+        <p>数字经济时代核心技术。数学+编程的组合是未来最高薪的路径之一。</p>
+      </div>
+      <div class="feature-card" onclick="window.location.href='pages/majors.html#engineering'">
+        <div class="icon">🔬</div>
+        <h3>生物医学工程</h3>
+        <p>医疗器械国产替代+人口老龄化双轮驱动。影像设备、手术机器人是热点。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2><span class="icon">📌</span> 快速入口</h2>
+    <div class="feature-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+      <div class="feature-card" onclick="window.location.href='pages/select.html'">
+        <div class="icon">🎯</div>
+        <h3>智能志愿推荐</h3>
+        <p>选择省份、输入分数，AI为你推荐最佳专业和院校匹配</p>
+      </div>
+      <div class="feature-card" onclick="window.location.href='pages/majors.html'">
+        <div class="icon">📚</div>
+        <h3>完整本科专业目录</h3>
+        <p>12大学科门类，800+本科专业详解，分数线、就业、薪资全掌握</p>
+      </div>
+      <div class="feature-card" onclick="window.location.href='pages/universities.html'">
+        <div class="icon">🏛️</div>
+        <h3>全国院校大全</h3>
+        <p>100+高校排名、详细介绍、校园链接、毕业去向全覆盖</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2><span class="icon">💡</span> 志愿填报核心建议（2026年）</h2>
+    <div class="advice-box">
+      <h3>🎯 填报策略</h3>
+      <p><strong>冲、稳、保三步走：</strong> 前30%志愿冲击略高于分数的学校，中间40%选择与分数匹配的院校，后30%选择稳妥保底院校。</p>
+      <p style="margin-top:8px;"><strong>专业优先还是学校优先？</strong> 高分段（985/211线以上）建议学校优先，平台和资源更重要。刚过本科线建议专业优先，选对赛道更重要。</p>
+    </div>
+    <div class="advice-box" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #f59e0b;">
+      <h3>🔥 2026年风口专业</h3>
+      <p><strong>第一梯队：</strong> 人工智能、集成电路设计与集成系统、数据科学与大数据技术、新能源科学与工程、计算机科学与技术</p>
+      <p style="margin-top:4px;"><strong>第二梯队：</strong> 口腔医学、金融科技、网络空间安全、临床医学（八年制）、自动化</p>
+      <p style="margin-top:4px;"><strong>区域红利：</strong> 杭州（数字经济）、深圳（科技创新）、成都（电子信息+宜居）、合肥（新能源+显示面板）</p>
+    </div>
+    <div class="advice-box" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #22c55e;">
+      <h3>📈 城市选择建议</h3>
+      <p>一线城市（北上广深）机会多但竞争激烈、生活成本高。新一线城市（杭州、成都、南京、武汉、西安）发展迅速、人才政策好、生活性价比高。选择城市时建议综合考虑：产业发展前景、生活质量、房价收入比、人才引进政策。</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>高考志愿填报助手 · 数据仅供参考，填报时请结合官方招生简章</p>
+  <p style="margin-top: 8px; font-size: 13px;">本系统基于公开数据整理，不构成录取承诺</p>
+</footer>
+</body>
+</html>

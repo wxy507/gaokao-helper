@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>完整本科专业目录 - 高考志愿填报助手</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>🎯 志愿<span>填报</span>助手</h1>
+      <div class="subtitle">智能推荐 · 完整专业目录 · 院校信息</div>
+    </div>
+    <nav>
+      <a href="../index.html">首页</a>
+      <a href="select.html">智能推荐</a>
+      <a href="majors.html" class="active">专业目录</a>
+      <a href="universities.html">院校大全</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <div class="breadcrumb">
+    <a href="../index.html">首页</a> <span class="sep">›</span> <span>本科专业目录</span>
+  </div>
+
+  <div class="section-card">
+    <h2><span class="icon">📚</span> 完整本科专业目录（12大学科门类）</h2>
+    <p style="color: var(--gray-500); margin-bottom: 20px; font-size: 14px;">点击学科门类查看下设专业详情，包括开设院校、录取分数、专业解析、就业去向和薪资水平。</p>
+    <div class="cat-grid" id="categoryGrid"></div>
+  </div>
+
+  <div id="majorListSection" class="section-card" style="display:none;">
+    <h2 id="categoryTitle"><span class="icon">📋</span> 专业列表</h2>
+    <div id="majorList"></div>
+  </div>
+</div>
+
+<script src="../data/majors.js"></script>
+<script>
+function initCategories() {
+  const grid = document.getElementById('categoryGrid');
+  MAJOR_CATEGORIES.forEach(cat => {
+    const card = document.createElement('div');
+    card.className = 'cat-card';
+    card.onclick = () => showMajors(cat.id);
+    card.innerHTML = `
+      <div class="cat-icon">${cat.icon}</div>
+      <div class="cat-name">${cat.name}</div>
+      <div class="cat-count">${cat.majors.length}个专业</div>
+      <div style="font-size:12px;color:var(--gray-400);margin-top:6px;">${cat.description.substring(0, 30)}...</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+initCategories();
+
+function showMajors(catId) {
+  const cat = MAJOR_CATEGORIES.find(c => c.id === catId);
+  if (!cat) return;
+  const section = document.getElementById('majorListSection');
+  const title = document.getElementById('categoryTitle');
+  const list = document.getElementById('majorList');
+
+  section.style.display = 'block';
+  title.innerHTML = `<span class="icon">${cat.icon}</span> ${cat.name}（${cat.majors.length}个专业）`;
+  
+  // 滚动到列表区
+  setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+  let html = `<p style="color:var(--gray-600);margin-bottom:16px;font-size:14px;">${cat.description}</p>`;
+  
+  cat.majors.forEach(m => {
+    const topUnis = m.universities ? m.universities.slice(0, 5) : [];
+    html += `<div class="rec-card" style="cursor:pointer;" onclick="window.location.href='major-detail.html?major=${encodeURIComponent(m.name)}'">
+      <div class="rec-header">
+        <span class="rec-major">${m.name}</span>
+        <span style="font-size:13px;color:var(--gray-500);">${topUnis.length > 0 ? '最低约 '+topUnis[topUnis.length-1].score+'分' : ''}</span>
+      </div>
+      <div class="rec-reason">${m.description.substring(0, 80)}${m.description.length > 80 ? '...' : ''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">
+        <span class="tag tag-blue">毕业后：${m.careers.substring(0, 30)}...</span>
+        <span class="tag tag-green">${m.salary.substring(0, 30)}...</span>
+      </div>
+      ${topUnis.length > 0 ? `<div style="margin-top:8px;font-size:13px;color:var(--gray-500);">🏫 ${topUnis.map(u => u.name).join(' · ')}</div>` : ''}
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+// 锚点导航支持（从首页跳转）
+document.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash.replace('#', '');
+  if (hash) showMajors(hash);
+});
+</script>
+<footer>
+  <p>高考志愿填报助手 · 数据仅供参考</p>
+</footer>
+</body>
+</html>

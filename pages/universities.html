@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全国院校大全 - 高考志愿填报助手</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>🎯 志愿<span>填报</span>助手</h1>
+      <div class="subtitle">智能推荐 · 完整专业目录 · 院校信息</div>
+    </div>
+    <nav>
+      <a href="../index.html">首页</a>
+      <a href="select.html">智能推荐</a>
+      <a href="majors.html">专业目录</a>
+      <a href="universities.html" class="active">院校大全</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <div class="breadcrumb">
+    <a href="../index.html">首页</a> <span class="sep">›</span> <span>全国院校大全</span>
+  </div>
+
+  <div class="section-card">
+    <h2><span class="icon">🏛️</span> 中国高校排名及详情</h2>
+    <p style="color: var(--gray-500); margin-bottom: 16px; font-size: 14px;">收录全国重点高校信息，包含院校介绍、校园网站、毕业生去向等。点击查看完整详情。</p>
+    <div class="form-row" style="margin-bottom:20px;">
+      <div class="form-group">
+        <label>筛选城市</label>
+        <select id="cityFilter" onchange="filterUniversities()">
+          <option value="">全部城市</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>筛选类型</label>
+        <select id="typeFilter" onchange="filterUniversities()">
+          <option value="">全部类型</option>
+        </select>
+      </div>
+    </div>
+    <div class="uni-list" id="uniList"></div>
+  </div>
+</div>
+
+<script src="../data/universities.js"></script>
+<script>
+function initFilters() {
+  const cities = [...new Set(UNIVERSITIES.map(u => u.location))].sort();
+  const types = [...new Set(UNIVERSITIES.map(u => u.type))].sort();
+  const citySel = document.getElementById('cityFilter');
+  const typeSel = document.getElementById('typeFilter');
+  cities.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; citySel.appendChild(o); });
+  types.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; typeSel.appendChild(o); });
+}
+initFilters();
+
+function filterUniversities() {
+  const city = document.getElementById('cityFilter').value;
+  const type = document.getElementById('typeFilter').value;
+  const list = document.getElementById('uniList');
+  
+  let filtered = UNIVERSITIES.filter(u => {
+    if (city && u.location !== city) return false;
+    if (type && u.type !== type) return false;
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray-500);">没有符合筛选条件的院校</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(u => `
+    <div class="uni-item" onclick="window.location.href='university-detail.html?uni=${encodeURIComponent(u.name)}'">
+      <div class="rank ${u.rank <= 3 ? 'top3' : u.rank <= 10 ? 'top10' : 'normal'}">${u.rank}</div>
+      <div class="uni-info">
+        <div class="uni-name">${u.name}</div>
+        <div class="uni-detail">📍 ${u.location} · ${u.type}院校</div>
+        <div class="uni-tags">${(u.tags || []).map(t => `<span class="tag tag-blue">${t}</span>`).join('')}</div>
+      </div>
+      <div style="color:var(--gray-400);font-size:13px;">查看 →</div>
+    </div>
+  `).join('');
+}
+filterUniversities();
+</script>
+<footer>
+  <p>高考志愿填报助手 · 数据仅供参考</p>
+</footer>
+</body>
+</html>
