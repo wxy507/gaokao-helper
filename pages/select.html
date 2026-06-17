@@ -29,7 +29,7 @@
 
   <div class="section-card">
     <h2><span class="icon">🎯</span> 填写你的高考信息</h2>
-    <p style="color: var(--gray-500); margin-bottom: 20px; font-size: 14px;">选择你的高考省份和考试分数，系统将为你智能推荐最适合的专业和院校。</p>
+    <p style="color: var(--gray-500); margin-bottom: 20px; font-size: 14px;">选择你的高考省份和考试分数，系统将根据你的分数段为你精准推荐冲、稳、保三个层次的院校和专业。</p>
     <div class="form-row">
       <div class="form-group">
         <label>选择高考省份</label>
@@ -38,36 +38,50 @@
         </select>
       </div>
       <div class="form-group">
-        <label>高考总分</label>
+        <label>你的高考总分</label>
         <select id="scoreSelect" onchange="updateScoreInfo()">
           <option value="">— 请先选择省份 —</option>
         </select>
       </div>
     </div>
-    <div style="text-align: center; margin-top: 8px;">
+    <div id="scoreInfo" style="display:none; margin-top: 12px; padding: 14px; background: var(--gray-50); border-radius: var(--radius-sm); text-align: center; font-size: 14px; color: var(--gray-600);"></div>
+    <div style="text-align: center; margin-top: 16px;">
       <button class="btn btn-primary btn-lg" onclick="getRecommendation()" id="recBtn">生成智能推荐 →</button>
     </div>
-    <div id="scoreInfo" style="display:none; margin-top: 12px; padding: 12px; background: var(--gray-50); border-radius: var(--radius-sm); text-align: center; font-size: 14px; color: var(--gray-600);"></div>
   </div>
 
   <div id="resultArea" style="display:none;">
+    <!-- 分数定位 -->
+    <div class="section-card" id="scorePositionCard"></div>
+
+    <!-- 冲稳保院校推荐 -->
     <div class="section-card">
-      <h2><span class="icon">🔥</span> 为你推荐的风口专业</h2>
-      <div id="hotMajors"></div>
+      <h2><span class="icon">🏫</span> 院校推荐（冲 · 稳 · 保）</h2>
+      <p style="color: var(--gray-500); font-size: 13px; margin-bottom: 16px;">
+        <span style="display:inline-block;padding:2px 10px;background:#fef3c7;border-radius:4px;margin-right:4px;">冲</span> 可以大胆尝试的院校（高出你分数约10-30分）
+        <span style="display:inline-block;padding:2px 10px;background:#dbeafe;border-radius:4px;margin:0 4px;">稳</span> 与你分数匹配的院校（±10分以内）
+        <span style="display:inline-block;padding:2px 10px;background:#d1fae5;border-radius:4px;margin:0 4px;">保</span> 稳妥保底院校（低于你分数10-30分）
+      </p>
+      <div id="reachUnis" style="margin-bottom:12px;"><h3>🔥 冲一冲</h3><div class="uni-list" id="reachList"></div></div>
+      <div id="matchUnis" style="margin-bottom:12px;"><h3>✅ 稳一稳</h3><div class="uni-list" id="matchList"></div></div>
+      <div id="safeUnis"><h3>🛡️ 保一保</h3><div class="uni-list" id="safeList"></div></div>
     </div>
 
+    <!-- 专业推荐 -->
     <div class="section-card">
-      <h2><span class="icon">🎓</span> 匹配院校建议</h2>
-      <div id="universityAdvice"></div>
+      <h2><span class="icon">📚</span> 你的分数段适合的专业推荐</h2>
+      <div id="majorRecommendation"></div>
     </div>
 
+    <!-- 填报策略 -->
     <div class="section-card">
-      <h2><span class="icon">💡</span> 个人志愿填报建议</h2>
+      <h2><span class="icon">💡</span> 个人志愿填报策略</h2>
       <div id="personalAdvice"></div>
     </div>
 
+    <!-- 城市建议 -->
     <div class="section-card">
-      <h2><span class="icon">🌆</span> 城市发展建议</h2>
+      <h2><span class="icon">🌆</span> 城市与区域发展建议</h2>
       <div id="cityAdvice"></div>
     </div>
   </div>
@@ -75,38 +89,61 @@
 
 <script src="../data/provinces.js"></script>
 <script src="../data/scoreReference.js"></script>
+<script src="../data/universities.js"></script>
 <script>
+const PROVINCE_MAP = {
+  '北京':'beijing','上海':'shanghai','天津':'beijing','重庆':'sichuan',
+  '河北':'henan','山西':'henan','内蒙古':'henan',
+  '辽宁':'shandong','吉林':'henan','黑龙江':'henan',
+  '江苏':'jiangsu','浙江':'zhejiang','安徽':'henan',
+  '福建':'guangdong','江西':'henan','山东':'shandong',
+  '河南':'henan','湖北':'hubei','湖南':'hunan',
+  '广东':'guangdong','广西':'henan','海南':'guangdong',
+  '四川':'sichuan','贵州':'sichuan','云南':'sichuan',
+  '西藏':'sichuan','陕西':'henan','甘肃':'henan',
+  '青海':'henan','宁夏':'henan','新疆':'henan'
+};
+
+// 根据排名估算院校录取分（河南/山东等高考大省理科参考）
+function uniScore(rank) {
+  if (rank <= 5) return 680;
+  if (rank <= 10) return 660;
+  if (rank <= 20) return 640;
+  if (rank <= 30) return 620;
+  if (rank <= 40) return 600;
+  if (rank <= 50) return 580;
+  if (rank <= 60) return 560;
+  if (rank <= 70) return 540;
+  if (rank <= 80) return 520;
+  if (rank <= 90) return 500;
+  if (rank <= 100) return 480;
+  if (rank <= 110) return 460;
+  if (rank <= 120) return 440;
+  return 420;
+}
+
+// 根据分数找对应的院校
+function findUnisByScore(targetScore, range) {
+  return UNIVERSITIES.filter(u => {
+    const s = uniScore(u.rank);
+    return Math.abs(s - targetScore) <= range;
+  }).slice(0, 6);
+}
+
+// 初始化
 const provinceSelect = document.getElementById('provinceSelect');
 const scoreSelect = document.getElementById('scoreSelect');
 const resultArea = document.getElementById('resultArea');
-const scoreInfo = document.getElementById('scoreInfo');
-
-// 省份映射
-const PROVINCE_MAP = {
-  '北京': 'beijing', '上海': 'shanghai', '天津': 'beijing', '重庆': 'sichuan',
-  '河北': 'henan', '山西': 'henan', '内蒙古': 'henan',
-  '辽宁': 'shandong', '吉林': 'henan', '黑龙江': 'henan',
-  '江苏': 'jiangsu', '浙江': 'zhejiang', '安徽': 'henan',
-  '福建': 'guangdong', '江西': 'henan', '山东': 'shandong',
-  '河南': 'henan', '湖北': 'hubei', '湖南': 'hunan',
-  '广东': 'guangdong', '广西': 'henan', '海南': 'guangdong',
-  '四川': 'sichuan', '贵州': 'sichuan', '云南': 'sichuan',
-  '西藏': 'sichuan', '陕西': 'henan', '甘肃': 'henan',
-  '青海': 'henan', '宁夏': 'henan', '新疆': 'henan'
-};
 
 function init() {
   PROVINCES.forEach(p => {
     const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.name;
+    opt.value = p.id; opt.textContent = p.name;
     provinceSelect.appendChild(opt);
   });
-  // 生成分数选项
   for (let s = 750; s >= 200; s -= 5) {
     const opt = document.createElement('option');
-    opt.value = s;
-    opt.textContent = s + '分';
+    opt.value = s; opt.textContent = s + '分';
     scoreSelect.appendChild(opt);
   }
 }
@@ -121,6 +158,7 @@ function updateScoreInfo() {
   const refKey = PROVINCE_MAP[province.name] || 'henan';
   const ref = SCORE_REFERENCE[refKey];
   if (!ref) return;
+  
   let level = '';
   for (let i = 0; i < ref.scoreRanges.length; i++) {
     if (score >= ref.scoreRanges[i].min && score <= ref.scoreRanges[i].max) {
@@ -129,19 +167,19 @@ function updateScoreInfo() {
     }
   }
   if (!level) level = score >= ref.本科线 ? '本科层次' : '未达本科线';
-  const aboveLine = score >= ref.本科线 ? '已过本科线' : '未达本科线';
-  const aboveSpecial = score >= ref.特殊类型线 ? '已过特殊类型招生控制线' : '';
-  scoreInfo.style.display = 'block';
-  scoreInfo.innerHTML = `📌 ${province.name}考生 | ${score}分 | ${level} | ${aboveLine} ${aboveSpecial}`;
+  const aboveLine = score >= ref.本科线 ? '✅ 已过本科线' : '⚠️ 未达本科线';
+  const aboveSpecial = score >= ref.特殊类型线 ? ' ✅ 已过特殊类型线' : '';
+  document.getElementById('scoreInfo').style.display = 'block';
+  document.getElementById('scoreInfo').innerHTML = 
+    `<strong>📌 ${province.name} · ${score}分</strong><br>` +
+    `批次定位：${level} | ${aboveLine}${aboveSpecial}`;
 }
 
 function getRecommendation() {
   const pId = provinceSelect.value;
   const score = parseInt(scoreSelect.value);
-  if (!pId || !score) {
-    alert('请先选择省份和分数');
-    return;
-  }
+  if (!pId || !score) { alert('请先选择省份和分数'); return; }
+  
   const province = PROVINCES.find(p => p.id === pId);
   const refKey = PROVINCE_MAP[province.name] || 'henan';
   const ref = SCORE_REFERENCE[refKey];
@@ -150,7 +188,7 @@ function getRecommendation() {
   resultArea.style.display = 'block';
   resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // 找到分数对应的层级
+  // 定位分数段
   let currentLevel = null;
   for (let i = 0; i < ref.scoreRanges.length; i++) {
     if (score >= ref.scoreRanges[i].min && score <= ref.scoreRanges[i].max) {
@@ -158,178 +196,211 @@ function getRecommendation() {
       break;
     }
   }
+  if (!currentLevel && score >= ref.本科线) currentLevel = ref.scoreRanges[ref.scoreRanges.length - 1];
 
-  // 热门专业推荐
-  renderHotMajors(score, ref);
-  // 院校建议
-  renderUniversityAdvice(score, ref, currentLevel, province);
-  // 个人建议
-  renderPersonalAdvice(score, ref, currentLevel, province);
+  // 分数定位卡片
+  document.getElementById('scorePositionCard').innerHTML = `
+    <h2><span class="icon">📊</span> 你的分数定位</h2>
+    <div class="info-grid">
+      <div class="info-item"><div class="label">省份</div><div class="value">${province.name}</div></div>
+      <div class="info-item"><div class="label">总分</div><div class="value">${score}分</div></div>
+      <div class="info-item"><div class="label">批次定位</div><div class="value">${currentLevel ? currentLevel.label : '本科层次'}</div></div>
+      <div class="info-item"><div class="label">本科线</div><div class="value">${ref.本科线}分</div></div>
+      <div class="info-item"><div class="label">特殊类型线</div><div class="value">${ref.特殊类型线}分</div></div>
+      <div class="info-item"><div class="label">建议策略</div><div class="value">${currentLevel ? (score >= ref.特殊类型线 ? '院校+专业并重' : '专业优先') : '专业优先'}</div></div>
+    </div>
+    <div class="advice-box" style="margin-top:16px;">
+      <h3>🎯 ${currentLevel ? currentLevel.label : '本科层次'} · 填报方向</h3>
+      <p>${currentLevel ? currentLevel.advice : '建议以专业为导向，选择就业前景好的应用型专业。'}</p>
+    </div>
+  `;
+
+  // 冲稳保院校推荐
+  renderUniTiers(score);
+  
+  // 适合分数段的专业推荐
+  renderScoreAwareMajors(score, ref);
+  
+  // 个人策略
+  renderPersonalAdvice(score, ref, province);
+  
   // 城市建议
   renderCityAdvice(province);
 }
 
-function renderHotMajors(score, ref) {
-  const container = document.getElementById('hotMajors');
-  const topTier = HOT_MAJOR_ADVICE.topTier;
-  const secondTier = HOT_MAJOR_ADVICE.secondTier;
-  const thirdTier = HOT_MAJOR_ADVICE.thirdTier;
+function renderUniTiers(score) {
+  // 冲：比分数高10-30分
+  // 稳：分数±10分
+  // 保：比分数低10-30分
+  const reachScore = score + 25;
+  const matchScore = score;
+  const safeScore = score - 25;
 
-  let html = '';
-  html += '<h3 style="margin-bottom:12px;">🏆 第一梯队（强烈推荐）</h3>';
-  topTier.forEach((m, i) => {
-    html += `<div class="rec-card" style="border-left:4px solid #2563eb;">
-      <div class="rec-header">
-        <span class="rec-major">${m.name}</span>
-        <span class="rec-level tag-blue">风口</span>
-      </div>
-      <div class="rec-reason">${m.reason}</div>
-      <div style="margin-top:8px;"><a href="major-detail.html?major=${encodeURIComponent(m.name)}" class="btn btn-outline" style="font-size:13px;padding:6px 14px;">查看详情 →</a></div>
-    </div>`;
-  });
-  html += '<h3 style="margin:16px 0 12px;">🥈 第二梯队（强烈推荐）</h3>';
-  secondTier.forEach(m => {
-    html += `<div class="rec-card" style="border-left:4px solid #10b981;">
-      <div class="rec-header">
-        <span class="rec-major">${m.name}</span>
-        <span class="rec-level tag-green">推荐</span>
-      </div>
-      <div class="rec-reason">${m.reason}</div>
-      <div style="margin-top:8px;"><a href="major-detail.html?major=${encodeURIComponent(m.name)}" class="btn btn-outline" style="font-size:13px;padding:6px 14px;">查看详情 →</a></div>
-    </div>`;
-  });
-  html += '<h3 style="margin:16px 0 12px;">🥉 第三梯队（值得考虑）</h3>';
-  thirdTier.forEach(m => {
-    html += `<div class="rec-card" style="border-left:4px solid #f59e0b;">
-      <div class="rec-header">
-        <span class="rec-major">${m.name}</span>
-        <span class="rec-level tag-yellow">关注</span>
-      </div>
-      <div class="rec-reason">${m.reason}</div>
-      <div style="margin-top:8px;"><a href="major-detail.html?major=${encodeURIComponent(m.name)}" class="btn btn-outline" style="font-size:13px;padding:6px 14px;">查看详情 →</a></div>
-    </div>`;
-  });
-  container.innerHTML = html;
-}
+  const reachUnis = findUnisByScore(reachScore, 15).filter(u => uniScore(u.rank) > score + 5);
+  const matchUnis = findUnisByScore(matchScore, 12);
+  const safeUnis = findUnisByScore(safeScore, 15).filter(u => uniScore(u.rank) < score - 5);
 
-function renderUniversityAdvice(score, ref, currentLevel, province) {
-  const container = document.getElementById('universityAdvice');
-  let html = '';
-  if (currentLevel) {
-    html += `<div class="advice-box">
-      <h3>📊 ${currentLevel.label}</h3>
-      <p>${currentLevel.advice}</p>
-      <p style="margin-top:8px;font-size:13px;color:var(--gray-500);">${province.name} 本科线：${ref.本科线}分 | 特殊类型线：${ref.特殊类型线}分</p>
-    </div>`;
-  }
-  // 推荐具体院校
-  const recUnis = getRecommendedUniversities(score, province.name);
-  if (recUnis.length > 0) {
-    html += '<h3 style="margin-top:20px;margin-bottom:12px;">🎯 推荐关注院校</h3><div class="uni-list">';
-    recUnis.forEach(u => {
-      html += `<div class="uni-item" onclick="window.location.href='university-detail.html?uni=${encodeURIComponent(u.name)}'">
+  function renderUnis(unis, containerId, emoji) {
+    const container = document.getElementById(containerId);
+    if (!unis.length) {
+      container.innerHTML = '<p style="color:var(--gray-500);padding:12px;">暂无比配的院校，请参考分数定位调整预期。</p>';
+      return;
+    }
+    container.innerHTML = unis.map((u, i) => {
+      const estScore = uniScore(u.rank);
+      return `<div class="uni-item" onclick="window.location.href='university-detail.html?uni=${encodeURIComponent(u.name)}'">
         <div class="rank ${u.rank <= 3 ? 'top3' : u.rank <= 10 ? 'top10' : 'normal'}">${u.rank}</div>
         <div class="uni-info">
-          <div class="uni-name">${u.name}</div>
-          <div class="uni-detail">${u.location} · ${u.type} · 排名第${u.rank}</div>
+          <div class="uni-name">${u.name} <span style="font-size:12px;color:var(--gray-400);font-weight:normal;">预估${estScore}分</span></div>
+          <div class="uni-detail">📍 ${u.location} · ${u.type}</div>
           <div class="uni-tags">${(u.tags || []).map(t => `<span class="tag tag-blue">${t}</span>`).join('')}</div>
         </div>
-        <div style="color:var(--gray-400);font-size:13px;">查看 →</div>
+        <div><span style="font-size:12px;color:var(--gray-500);">分差 ${estScore > score ? '+' : ''}${estScore - score}</span></div>
       </div>`;
-    });
-    html += '</div>';
+    }).join('');
   }
-  container.innerHTML = html;
+
+  renderUnis(reachUnis, 'reachList', '🔥');
+  renderUnis(matchUnis, 'matchList', '✅');
+  renderUnis(safeUnis, 'safeList', '🛡️');
+
+  if (!reachUnis.length) document.getElementById('reachUnis').style.display = 'none';
+  if (!matchUnis.length) document.getElementById('matchUnis').style.display = 'none';
+  if (!safeUnis.length) document.getElementById('safeUnis').style.display = 'none';
 }
 
-function getRecommendedUniversities(score, provinceName) {
-  if (typeof UNIVERSITIES === 'undefined') return [];
-  // 基于分数粗略匹配
-  let level;
-  if (score >= 660) level = 5;
-  else if (score >= 620) level = 4;
-  else if (score >= 580) level = 3;
-  else if (score >= 520) level = 2;
-  else if (score >= 460) level = 1;
-  else level = 0;
+function renderScoreAwareMajors(score, ref) {
+  const container = document.getElementById('majorRecommendation');
+  const isHighScore = score >= (ref.topUniversity || 650);
+  const isMediumScore = score >= ref.特殊类型线;
+  const is本科 = score >= ref.本科线;
+  
+  let intro = '';
+  let majors = [];
+  
+  if (isHighScore) {
+    intro = '你的分数很高，可以冲刺顶尖高校的优势专业！';
+    majors = [
+      { name: '人工智能', desc: 'AI时代核心专业，顶尖高校该专业毕业生供不应求', level: '冲刺', scoreRange: '680+' },
+      { name: '计算机科学与技术', desc: '清华、北大、浙大等顶尖高校的王牌专业，就业前景极好', level: '冲刺', scoreRange: '670+' },
+      { name: '集成电路设计与集成系统', desc: '芯片战略核心专业，复旦、清华、电子科大等实力强劲', level: '冲刺', scoreRange: '660+' },
+      { name: '金融科技', desc: '金融+科技复合方向，清北复交等顶尖金融院校首选', level: '冲刺', scoreRange: '660+' },
+      { name: '临床医学（八年制）', desc: '协和、北大、复旦等顶尖医学院的八年制本博连读', level: '冲刺', scoreRange: '670+' }
+    ];
+  } else if (isMediumScore) {
+    intro = '你的分数在特殊类型线以上，有较多选择空间，建议院校和专业并重。';
+    majors = [
+      { name: '计算机科学与技术', desc: '适合中上分数段填报，可选择电子科大、北邮、西电等行业强校', level: '匹配', scoreRange: '580-640' },
+      { name: '新能源科学与工程', desc: '双碳战略核心，华中科大、西安交大、浙大等车企和能源企业就业好', level: '匹配', scoreRange: '580-630' },
+      { name: '自动化', desc: '工业4.0核心专业，哈工大、北航、华科等就业前景广阔', level: '匹配', scoreRange: '570-620' },
+      { name: '网络空间安全', desc: '网络安全人才缺口大，西电、北邮、华科等实力强', level: '匹配', scoreRange: '560-620' },
+      { name: '数据科学与大数据技术', desc: '各行各业都需要数据人才，中南、西交等可选择', level: '匹配', scoreRange: '560-610' }
+    ];
+  } else if (is本科) {
+    intro = '你的分数在本科线上，建议以专业为导向，选择应用型强、就业好的专业。';
+    majors = [
+      { name: '软件工程', desc: '应用型强，就业薪资高。杭电、重邮、南邮等非211院校计算机实力不俗', level: '匹配', scoreRange: '480-560' },
+      { name: '数据科学与大数据技术', desc: '数字经济时代需求旺盛，省属重点大学的数据专业值得选择', level: '匹配', scoreRange: '470-550' },
+      { name: '电子信息工程', desc: '就业面宽，智能制造、通信、消费电子多个方向可选', level: '匹配', scoreRange: '460-540' },
+      { name: '机械电子工程', desc: '智能制造方向需求大，河南科大、武汉科大等省属强校可报', level: '匹配', scoreRange: '450-530' },
+      { name: '会计学/财务管理', desc: '企业刚需专业，湖南工商、山东财经等省属财经院校性价比高', level: '匹配', scoreRange: '440-520' }
+    ];
+  } else {
+    intro = '未达本科线，但专科院校也有很多就业前景好的选择。';
+    majors = [
+      { name: '计算机应用技术（专科）', desc: '深圳职院、杭州职院等专科院校的计算机专业就业不错', level: '推荐', scoreRange: '专科' },
+      { name: '护理（专科）', desc: '社会刚需，就业稳定。各级医院护理人才持续紧缺', level: '推荐', scoreRange: '专科' },
+      { name: '新能源汽车技术（专科）', desc: '新能源汽车产业爆发，比亚迪等企业需要大量技能人才', level: '推荐', scoreRange: '专科' },
+      { name: '机电一体化技术（专科）', desc: '智能制造领域需求量大，就业稳定', level: '推荐', scoreRange: '专科' }
+    ];
+  }
 
-  let recs = [];
-  if (level >= 5) recs = UNIVERSITIES.slice(0, 8);
-  else if (level === 4) recs = UNIVERSITIES.slice(4, 15);
-  else if (level === 3) recs = UNIVERSITIES.slice(10, 25);
-  else if (level === 2) recs = UNIVERSITIES.slice(15, 35);
-  else if (level === 1) recs = UNIVERSITIES.slice(20, 45);
-  else recs = UNIVERSITIES.slice(25, 50);
-  return recs.slice(0, 8);
+  container.innerHTML = `
+    <p style="color:var(--gray-600);margin-bottom:16px;">${intro}</p>
+    ${majors.map(m => `
+      <div class="rec-card" style="border-left:4px solid ${m.level === '冲刺' ? '#f59e0b' : m.level === '匹配' ? '#2563eb' : '#10b981'};">
+        <div class="rec-header">
+          <span class="rec-major">${m.name}</span>
+          <span class="tag ${m.level === '冲刺' ? 'tag-yellow' : m.level === '匹配' ? 'tag-blue' : 'tag-green'}">${m.scoreRange}</span>
+        </div>
+        <div class="rec-reason">${m.desc}</div>
+        <div style="margin-top:8px;"><a href="major-detail.html?major=${encodeURIComponent(m.name)}" class="btn btn-outline" style="font-size:13px;padding:6px 14px;">查看详情 →</a></div>
+      </div>
+    `).join('')}
+  `;
 }
 
-function renderPersonalAdvice(score, ref, currentLevel, province) {
+function renderPersonalAdvice(score, ref, province) {
   const container = document.getElementById('personalAdvice');
-  let html = '';
   const isHigh = score >= (ref.topUniversity || 650);
   const isMedium = score >= ref.特殊类型线;
-  const isLow = score >= ref.本科线;
-  const isBelow = score < ref.本科线;
+  const is本科 = score >= ref.本科线;
+  
+  let strategy = '';
+  let ratio = '';
 
   if (isHigh) {
-    html += `<div class="advice-box">
-      <h3>🌟 高分段建议（${score}分）</h3>
-      <p><strong>策略：院校优先，兼顾专业。</strong> 你的分数有实力冲击顶尖高校。在这个层次，学校的平台、校友资源、保研率对未来的影响更大。</p>
-      <p style="margin-top:8px;">✅ 建议冲刺1-2所略高于分数线的名校<br>✅ 稳妥选择匹配分数的院校王牌专业<br>✅ 关注C9联盟和顶尖985的优势学科<br>✅ 考虑本硕博贯通培养项目</p>
-    </div>`;
+    strategy = '院校优先策略。高分段的学校平台、校友资源、保研率对未来的影响远大于专业。建议优先选择顶尖985院校，再考虑专业。';
+    ratio = '冲30% · 稳50% · 保20%';
   } else if (isMedium) {
-    html += `<div class="advice-box">
-      <h3>📈 中分段建议（${score}分）</h3>
-      <p><strong>策略：学校+专业并重。</strong> 你的分数在特殊类型线以上，有较多选择空间。</p>
-      <p style="margin-top:8px;">✅ 冲击211/双一流院校的优势专业<br>✅ 关注行业特色强校（如北邮通信、西电电子等）<br>✅ 优先选择位于一二线城市的院校<br>✅ 结合就业市场选择赛道</p>
-    </div>`;
-  } else if (isLow) {
-    html += `<div class="advice-box">
-      <h3>📊 本科段建议（${score}分）</h3>
-      <p><strong>策略：专业优先，以就业为导向。</strong> 在这个分段，选择对的赛道比学校名气更重要。</p>
-      <p style="margin-top:8px;">✅ 优先选择就业前景好的应用型专业<br>✅ 关注行业特色二本院校的优势专业<br>✅ 考虑"专业+城市"组合，选择产业集聚地<br>✅ 关注专升本和考研通道</p>
-    </div>`;
-  } else if (isBelow) {
-    html += `<div class="advice-box" style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border-color: #fca5a5;">
-      <h3>⚠️ 未达本科线建议</h3>
-      <p><strong>不必灰心，还有很多选择！</strong></p>
-      <p style="margin-top:8px;">✅ 考虑高职（专科）院校的特色专业<br>✅ 关注专升本通道和"3+2"贯通培养<br>✅ 部分院校有征集志愿和降分录取机会<br>✅ 职业技术大学也是不错的选择</p>
-    </div>`;
+    strategy = '院校+专业并重策略。211/双一流院校的招牌专业性价比最高。建议先圈定学校层次，再选择该校的优势专业。同时关注行业特色院校。';
+    ratio = '冲20% · 稳60% · 保20%';
+  } else if (is本科) {
+    strategy = '专业优先策略。在这个分数段，专业的选择比学校名气更重要。选对了赛道，就业和发展空间可能超过名校冷门专业。建议优先选择就业前景好的应用型专业。';
+    ratio = '冲15% · 稳55% · 保30%';
+  } else {
+    strategy = '以就业为导向。专科院校中选择技能型、应用型专业。未来可通过专升本、考研等通道继续深造。';
+    ratio = '冲10% · 稳40% · 保50%';
   }
-  container.innerHTML = html;
+
+  container.innerHTML = `
+    <div class="advice-box">
+      <h3>🎯 推荐填报策略</h3>
+      <p><strong>策略：</strong>${strategy}</p>
+      <p style="margin-top:8px;"><strong>冲稳保比例建议：</strong>${ratio}</p>
+    </div>
+    <div class="advice-box" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #22c55e;">
+      <h3>📋 填报要点</h3>
+      <p>✅ 仔细阅读目标院校的招生章程，了解录取规则和专业限制</p>
+      <p>✅ 关注"专业+学校"志愿模式下每个志愿的独立录取规则</p>
+      <p>✅ 选择同意专业调剂，避免因不服从调剂而退档</p>
+      <p>✅ 注意查看院校的选考科目要求，确保符合报考条件</p>
+      <p>✅ 参考近3年录取数据，不要只看一年的分数线</p>
+    </div>
+  `;
 }
 
 function renderCityAdvice(province) {
   const container = document.getElementById('cityAdvice');
   const regional = HOT_MAJOR_ADVICE.regionalAdvice;
-  let html = '';
-  // 基于省份推荐城市
   const pName = province.name;
   let cityKey = 'others';
   if (['北京'].includes(pName)) cityKey = 'beijing';
   else if (['上海'].includes(pName)) cityKey = 'shanghai';
   else if (['广东'].includes(pName)) cityKey = 'guangzhou_shenzhen';
-  else if (['四川', '重庆'].includes(pName)) cityKey = 'chengdu_chongqing';
-  else if (['湖北', '湖南'].includes(pName)) cityKey = 'wuhan_changsha';
-  else if (['江苏', '浙江'].includes(pName)) cityKey = 'nanjing_hangzhou';
+  else if (['四川','重庆'].includes(pName)) cityKey = 'chengdu_chongqing';
+  else if (['湖北','湖南'].includes(pName)) cityKey = 'wuhan_changsha';
+  else if (['江苏','浙江'].includes(pName)) cityKey = 'nanjing_hangzhou';
   else if (['陕西'].includes(pName)) cityKey = 'xi_an';
 
-  const keyAdvice = regional[cityKey] || regional.others;
-  html += `<div class="advice-box">
-    <h3>🌆 ${cityKey === 'beijing' ? '北京' : cityKey === 'shanghai' ? '上海' : cityKey === 'guangzhou_shenzhen' ? '大湾区（广州/深圳）' : cityKey === 'chengdu_chongqing' ? '成渝地区' : cityKey === 'wuhan_changsha' ? '中部（武汉/长沙）' : cityKey === 'nanjing_hangzhou' ? '长三角（南京/杭州）' : cityKey === 'xi_an' ? '西安' : '新一线城市'}的发展与就业</h3>
-    <p>${keyAdvice}</p>
-  </div>`;
-  html += `<div class="advice-box" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #22c55e;">
-    <h3>🔄 冲稳保填报策略</h3>
-    <p><strong>冲刺志愿（前20%）：</strong> 选择往年录取分略高于你分数的院校，大胆尝试</p>
-    <p><strong>稳妥志愿（中间50%）：</strong> 选择与你分数匹配的院校和专业，这是最可能被录取的范围</p>
-    <p><strong>保底志愿（后30%）：</strong> 选择往年录取分低于你分数10-20分的院校，确保有学上</p>
-    <p style="margin-top:8px;font-size:13px;color:var(--gray-500);">⚠️ 以上建议仅供参考，正式填报请结合省招办公布的招生计划和往年录取数据</p>
-  </div>`;
-  container.innerHTML = html;
+  // 针对低分段的城市建议
+  const score = parseInt(scoreSelect.value);
+  const isLowScore = score < 520;
+  
+  container.innerHTML = `
+    <div class="advice-box">
+      <h3>🌆 城市选择建议</h3>
+      <p>${regional[cityKey] || regional.others}</p>
+      ${isLowScore ? `
+      <p style="margin-top:8px;"><strong>💡 低分段特别建议：</strong>如果省内公办本科机会有限，可以考虑以下方向：
+      <br>① 省外二三线城市的公办本科（分数线相对较低）
+      <br>② 位于一线城市但层次稍低的院校（实习和就业资源好）
+      <br>③ 关注"专升本"政策友好的省份和院校
+      <br>④ 优先选择产业集聚地的院校（如杭州的电商、深圳的IT、长沙的文创等）</p>` : ''}
+    </div>
+  `;
 }
 </script>
-<script src="../data/universities.js"></script>
 <footer>
   <p>高考志愿填报助手 · 数据仅供参考，填报时请结合官方招生简章</p>
 </footer>

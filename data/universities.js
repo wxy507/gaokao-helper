@@ -482,6 +482,159 @@ const UNIVERSITIES = [
     majors: ['计算机科学与技术', '电子信息工程', '建筑学', '经济学', '金融学', '法学'],
     stats: { undergraduateCount: 26000, graduateCount: 13000, internationalCount: 1500 }
   }
+  {
+    id: 'hhu', name: '河海大学', rank: 60, type: '理工', location: '南京',
+    tags: ['211', '双一流'],
+    description: '河海大学以水利工程为特色，工科实力突出。水利工程学科全国第一。位于南京，校园环境优美。',
+    website: 'https://www.hhu.edu.cn', campusLink: 'https://www.hhu.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '河海大学' },
+    graduateOutcomes: { employmentRate: '96.5%', furtherStudy: '国内深造约30%，国外深造约8%', topEmployers: ['中国水利水电集团', '华为', '国家电网', '江苏省选调'], averageSalary: '应届本科约10-18万/年，硕士约18-30万/年' },
+    majors: ['水利工程', '计算机科学与技术', '土木工程', '能源与动力工程'], stats: {} 
+  },
+  {
+    id: 'hhu2', name: '华北水利水电大学', rank: 72, type: '理工', location: '郑州',
+    tags: ['省重点'],
+    description: '华北水利水电大学是水利部与河南省共建高校。水利工程、土木工程等专业特色鲜明。',
+    website: 'https://www.ncwu.edu.cn', campusLink: 'https://www.ncwu.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '华北水利水电大学' },
+    graduateOutcomes: { employmentRate: '95.0%', furtherStudy: '国内深造约15%', topEmployers: ['中国水利水电集团', '河南省水利厅', '中建集团'], averageSalary: '应届本科约6-12万/年，硕士约12-20万/年' },
+    majors: ['水利工程', '土木工程', '机械工程', '计算机科学与技术'], stats: {}
+  },
+  {
+    id: 'henu', name: '河南大学', rank: 75, type: '综合', location: '开封',
+    tags: ['双一流', '省重点'],
+    description: '河南大学是河南省属重点大学，入选双一流建设高校。文科和理科基础扎实，生物学为世界一流建设学科。',
+    website: 'https://www.henu.edu.cn', campusLink: 'https://www.henu.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '河南大学' },
+    graduateOutcomes: { employmentRate: '94.0%', furtherStudy: '国内深造约20%', topEmployers: ['河南省选调', '河南各地市中小学', '郑州银行', '宇通集团'], averageSalary: '应届本科约5-9万/年，硕士约10-16万/年' },
+    majors: ['生物学', '中国语言文学', '地理科学', '历史学', '化学'], stats: {}
+  },
+  {
+    id: 'haust', name: '河南科技大学', rank: 78, type: '综合', location: '洛阳',
+    tags: ['省重点'],
+    description: '河南科技大学是河南省重点建设高校。机械工程、材料科学等专业实力突出，轴承专业全国知名。',
+    website: 'https://www.haust.edu.cn', campusLink: 'https://www.haust.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '河南科技大学' },
+    graduateOutcomes: { employmentRate: '94.5%', furtherStudy: '国内深造约12%', topEmployers: ['中信重工', '洛阳轴承', '中国一拖', '宇通集团'], averageSalary: '应届本科约5-10万/年，硕士约10-18万/年' },
+    majors: ['机械工程', '材料成型及控制工程', '车辆工程', '计算机科学与技术'], stats: {}
+  },
+  {
+    id: 'hpu', name: '河南理工大学', rank: 82, type: '理工', location: '焦作',
+    tags: ['省重点'],
+    description: '河南理工大学是河南省属重点大学，安全工程、测绘工程等专业特色鲜明。安全科学与工程学科全国领先。',
+    website: 'https://www.hpu.edu.cn', campusLink: 'https://www.hpu.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '河南理工大学' },
+    graduateOutcomes: { employmentRate: '93.5%', furtherStudy: '国内深造约10%', topEmployers: ['国家能源集团', '中国平煤神马集团', '河南省测绘局'], averageSalary: '应届本科约5-9万/年，硕士约10-16万/年' },
+    majors: ['安全工程', '测绘工程', '采矿工程', '机械工程'], stats: {}
+  },
+  {
+    id: 'sdust', name: '山东科技大学', rank: 80, type: '综合', location: '青岛',
+    tags: ['省重点'],
+    description: '山东科技大学是山东省属重点大学，工科实力较强。测绘、矿业、控制科学等学科有特色。位于海滨城市青岛。',
+    website: 'https://www.sdust.edu.cn', campusLink: 'https://www.sdust.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '山东科技大学' },
+    graduateOutcomes: { employmentRate: '94.0%', furtherStudy: '国内深造约15%', topEmployers: ['海尔集团', '海信集团', '山东能源集团', '青岛港'], averageSalary: '应届本科约6-11万/年，硕士约12-20万/年' },
+    majors: ['测绘工程', '计算机科学与技术', '机械工程', '电气工程'], stats: {}
+  },
+  {
+    id: 'qdu', name: '青岛大学', rank: 85, type: '综合', location: '青岛',
+    tags: ['省重点'],
+    description: '青岛大学是山东省属重点综合性大学。医学、工学、理学协调发展。位于青岛，环境优美。',
+    website: 'https://www.qdu.edu.cn', campusLink: 'https://www.qdu.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '青岛大学' },
+    graduateOutcomes: { employmentRate: '93.5%', furtherStudy: '国内深造约18%', topEmployers: ['青岛大学附属医院', '海尔集团', '海信集团', '青岛啤酒'], averageSalary: '应届本科约6-10万/年，硕士约12-18万/年' },
+    majors: ['临床医学', '计算机科学与技术', '材料科学与工程', '自动化'], stats: {}
+  },
+  {
+    id: 'tjpu', name: '天津工业大学', rank: 83, type: '理工', location: '天津',
+    tags: ['双一流', '省重点'],
+    description: '天津工业大学是天津市属重点大学，纺织科学与工程为世界一流建设学科。工科实力较强。',
+    website: 'https://www.tjpu.edu.cn', campusLink: 'https://www.tjpu.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '天津工业大学' },
+    graduateOutcomes: { employmentRate: '94.0%', furtherStudy: '国内深造约14%', topEmployers: ['中石化', '天津轨道交通集团', '华为', '天津各区政府'], averageSalary: '应届本科约6-11万/年，硕士约12-19万/年' },
+    majors: ['纺织工程', '计算机科学与技术', '材料科学与工程', '机械工程'], stats: {}
+  },
+  {
+    id: 'wust', name: '武汉科技大学', rank: 86, type: '理工', location: '武汉',
+    tags: ['省重点'],
+    description: '武汉科技大学是湖北省属重点大学。冶金工程、材料科学等专业实力突出。位于武汉，就业前景好。',
+    website: 'https://www.wust.edu.cn', campusLink: 'https://www.wust.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '武汉科技大学' },
+    graduateOutcomes: { employmentRate: '93.5%', furtherStudy: '国内深造约12%', topEmployers: ['武钢集团', '东风汽车', '中建三局', '华为'], averageSalary: '应届本科约6-12万/年，硕士约12-20万/年' },
+    majors: ['冶金工程', '材料科学与工程', '计算机科学与技术', '机械工程'], stats: {}
+  },
+  {
+    id: 'gzhu', name: '广州大学', rank: 90, type: '综合', location: '广州',
+    tags: ['省重点'],
+    description: '广州大学是广州市属重点大学。数学、土木工程、网络空间安全等专业有特色。地处广州，就业资源丰富。',
+    website: 'https://www.gzhu.edu.cn', campusLink: 'https://www.gzhu.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '广州大学' },
+    graduateOutcomes: { employmentRate: '93.0%', furtherStudy: '国内深造约10%', topEmployers: ['广州市属中小学', '广州地铁', '腾讯', '华为'], averageSalary: '应届本科约7-13万/年，硕士约14-22万/年' },
+    majors: ['土木工程', '计算机科学与技术', '网络空间安全', '数学与应用数学'], stats: {}
+  },
+  {
+    id: 'cust', name: '长春理工大学', rank: 93, type: '理工', location: '长春',
+    tags: ['省重点'],
+    description: '长春理工大学是吉林省属重点大学。光学工程学科全国知名，有"中国光学英才摇篮"之称。',
+    website: 'https://www.cust.edu.cn', campusLink: 'https://www.cust.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '长春理工大学' },
+    graduateOutcomes: { employmentRate: '92.5%', furtherStudy: '国内深造约12%', topEmployers: ['中国科学院长春光机所', '华为', '中兴通讯', '一汽集团'], averageSalary: '应届本科约5-10万/年，硕士约10-16万/年' },
+    majors: ['光电信息科学与工程', '计算机科学与技术', '机械工程', '电子信息工程'], stats: {}
+  },
+  {
+    id: 'cdut', name: '成都理工大学', rank: 88, type: '理工', location: '成都',
+    tags: ['双一流', '省重点'],
+    description: '成都理工大学是四川省属重点大学，地质资源与地质工程为世界一流建设学科。位于成都，经济发展迅速。',
+    website: 'https://www.cdut.edu.cn', campusLink: 'https://www.cdut.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '成都理工大学' },
+    graduateOutcomes: { employmentRate: '93.5%', furtherStudy: '国内深造约13%', topEmployers: ['四川省地质局', '中石油西南油气田', '四川省各区政府'], averageSalary: '应届本科约6-10万/年，硕士约12-18万/年' },
+    majors: ['地质工程', '石油工程', '土木工程', '计算机科学与技术'], stats: {}
+  },
+  {
+    id: 'xaut', name: '西安理工大学', rank: 92, type: '理工', location: '西安',
+    tags: ['省重点'],
+    description: '西安理工大学是陕西省属重点大学。水利工程、机械工程、自动化等专业实力较强。',
+    website: 'https://www.xaut.edu.cn', campusLink: 'https://www.xaut.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '西安理工大学' },
+    graduateOutcomes: { employmentRate: '93.5%', furtherStudy: '国内深造约12%', topEmployers: ['中国西电集团', '陕汽集团', '华为', '中兴通讯'], averageSalary: '应届本科约6-10万/年，硕士约12-18万/年' },
+    majors: ['机械工程', '自动化', '计算机科学与技术', '水利工程'], stats: {}
+  },
+  {
+    id: 'hutb', name: '湖南工商大学', rank: 95, type: '财经', location: '长沙',
+    tags: ['省重点'],
+    description: '湖南工商大学是湖南省属财经类高校。工商管理、会计学、金融学等商科专业在省内口碑好。位于长沙。',
+    website: 'https://www.hutb.edu.cn', campusLink: 'https://www.hutb.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '湖南工商大学' },
+    graduateOutcomes: { employmentRate: '92.5%', furtherStudy: '国内深造约8%', topEmployers: ['湖南省各银行', '三一重工', '中联重科', '长沙各区政府'], averageSalary: '应届本科约5-9万/年，硕士约10-16万/年' },
+    majors: ['会计学', '工商管理', '金融学', '国际经济与贸易'], stats: {}
+  },
+  {
+    id: 'nefu', name: '东北林业大学', rank: 76, type: '农林', location: '哈尔滨',
+    tags: ['211', '双一流'],
+    description: '东北林业大学是教育部直属211高校。林业工程、林学等学科全国领先。位于哈尔滨。',
+    website: 'https://www.nefu.edu.cn', campusLink: 'https://www.nefu.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '东北林业大学' },
+    graduateOutcomes: { employmentRate: '93.5%', furtherStudy: '国内深造约18%', topEmployers: ['国家林业和草原局', '黑龙江省选调', '中建集团'], averageSalary: '应届本科约5-10万/年，硕士约10-16万/年' },
+    majors: ['林学', '林业工程', '风景园林', '计算机科学与技术'], stats: {}
+  },
+  {
+    id: 'nit', name: '南昌工程学院', rank: 105, type: '理工', location: '南昌',
+    tags: ['公办本科'],
+    description: '南昌工程学院是江西省属本科院校。水利水电工程、土木工程等专业有特色。',
+    website: 'https://www.nit.edu.cn', campusLink: 'https://www.nit.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '南昌工程学院' },
+    graduateOutcomes: { employmentRate: '91.0%', furtherStudy: '国内深造约5%', topEmployers: ['江西省水利厅', '中建集团', '中铁集团'], averageSalary: '应届本科约4-8万/年，硕士约8-14万/年' },
+    majors: ['水利水电工程', '土木工程', '机械工程', '计算机科学与技术'], stats: {}
+  },
+  {
+    id: 'hnie', name: '湖南工程学院', rank: 110, type: '理工', location: '湘潭',
+    tags: ['公办本科'],
+    description: '湖南工程学院是湖南省属公办本科院校。电气工程、机械工程等应用型专业为特色。',
+    website: 'https://www.hnie.edu.cn', campusLink: 'https://www.hnie.edu.cn/xywz/list.htm',
+    socialLinks: { wechat: '湖南工程学院' },
+    graduateOutcomes: { employmentRate: '90.5%', furtherStudy: '国内深造约4%', topEmployers: ['湘电集团', '中联重科', '三一重工'], averageSalary: '应届本科约4-7万/年，硕士约8-13万/年' },
+    majors: ['电气工程', '机械工程', '自动化', '纺织工程'], stats: {}
+  }
 ];
 
 // 按排名排序
