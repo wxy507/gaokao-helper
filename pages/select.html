@@ -33,13 +33,13 @@
     <div class="form-row">
       <div class="form-group">
         <label>选择高考省份</label>
-        <select id="provinceSelect" onchange="updateScoreInfo()">
+        <select id="provinceSelect" onchange="updateScoreRange(); updateScoreInfo()">
           <option value="">— 请选择省份 —</option>
         </select>
       </div>
       <div class="form-group">
         <label>你的高考总分</label>
-        <select id="scoreSelect" onchange="updateScoreInfo()">
+        <select id="scoreSelect" onchange="updateScoreRange(); updateScoreInfo()">
           <option value="">— 请先选择省份 —</option>
         </select>
       </div>
@@ -91,18 +91,9 @@
 <script src="../data/scoreReference.js"></script>
 <script src="../data/universities.js"></script>
 <script>
-const PROVINCE_MAP = {
-  '北京':'beijing','上海':'shanghai','天津':'beijing','重庆':'sichuan',
-  '河北':'henan','山西':'henan','内蒙古':'henan',
-  '辽宁':'shandong','吉林':'henan','黑龙江':'henan',
-  '江苏':'jiangsu','浙江':'zhejiang','安徽':'henan',
-  '福建':'guangdong','江西':'henan','山东':'shandong',
-  '河南':'henan','湖北':'hubei','湖南':'hunan',
-  '广东':'guangdong','广西':'henan','海南':'guangdong',
-  '四川':'sichuan','贵州':'sichuan','云南':'sichuan',
-  '西藏':'sichuan','陕西':'henan','甘肃':'henan',
-  '青海':'henan','宁夏':'henan','新疆':'henan'
-};
+// 省份名→ID映射
+const PROVINCE_NAME_TO_ID = {};
+PROVINCES.forEach(function(p) { PROVINCE_NAME_TO_ID[p.name] = p.id; });
 
 // 根据排名估算院校录取分（河南/山东等高考大省理科参考）
 function uniScore(rank) {
@@ -147,6 +138,21 @@ function init() {
     scoreSelect.appendChild(opt);
   }
 }
+
+// 省份切换时动态调整分数下拉范围（适配不同总分）
+function updateScoreRange() {
+  const pId = provinceSelect.value;
+  if (!pId) return;
+  const province = PROVINCES.find(p => p.id === pId);
+  if (!province) return;
+  const maxScore = province.totalScore;
+  scoreSelect.innerHTML = '<option value="">—— 请选择分数 ——</option>';
+  for (let s = maxScore; s >= 200; s -= 5) {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s + '分';
+    scoreSelect.appendChild(opt);
+  }
+}
 init();
 
 function updateScoreInfo() {
@@ -155,9 +161,17 @@ function updateScoreInfo() {
   if (!pId || !score) return;
   const province = PROVINCES.find(p => p.id === pId);
   if (!province) return;
-  const refKey = PROVINCE_MAP[province.name] || 'henan';
-  const ref = SCORE_REFERENCE[refKey];
+  // 直接使用省份ID查找分数线
+  const ref = SCORE_REFERENCE[pId] || SCORE_REFERENCE['ha'];
   if (!ref) return;
+  
+  const maxScore = province.totalScore;
+  if (score > maxScore) {
+    document.getElementById('scoreInfo').style.display = 'block';
+    document.getElementById('scoreInfo').innerHTML = 
+      '<strong>⚠️ ' + province.name + '高考总分为' + maxScore + '分</strong><br>请选择 ' + maxScore + ' 分及以下的分数';
+    return;
+  }
   
   let level = '';
   for (let i = 0; i < ref.scoreRanges.length; i++) {
@@ -171,8 +185,8 @@ function updateScoreInfo() {
   const aboveSpecial = score >= ref.特殊类型线 ? ' ✅ 已过特殊类型线' : '';
   document.getElementById('scoreInfo').style.display = 'block';
   document.getElementById('scoreInfo').innerHTML = 
-    `<strong>📌 ${province.name} · ${score}分</strong><br>` +
-    `批次定位：${level} | ${aboveLine}${aboveSpecial}`;
+    '<strong>📌 ' + province.name + ' · ' + score + '分（满分' + maxScore + '分）</strong><br>' +
+    '批次定位：' + level + ' | ' + aboveLine + aboveSpecial;
 }
 
 function getRecommendation() {
@@ -181,7 +195,7 @@ function getRecommendation() {
   if (!pId || !score) { alert('请先选择省份和分数'); return; }
   
   const province = PROVINCES.find(p => p.id === pId);
-  const refKey = PROVINCE_MAP[province.name] || 'henan';
+  // 直接使用省份ID查找分数线数据
   const ref = SCORE_REFERENCE[refKey];
   if (!ref) return;
 
@@ -332,7 +346,7 @@ function renderScoreAwareMajors(score, ref) {
 
 function renderPersonalAdvice(score, ref, province) {
   const container = document.getElementById('personalAdvice');
-  const isHigh = score >= (ref.topUniversity || 650);
+  const isHigh = score >= (ref.scoreRanges[0] ? ref.scoreRanges[0].min - 5 : 650);
   const isMedium = score >= ref.特殊类型线;
   const is本科 = score >= ref.本科线;
   
